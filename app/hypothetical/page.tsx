@@ -5,13 +5,13 @@ import type { Election } from '@/lib/types'
 import ElectionCard from '@/components/ElectionCard'
 import VoteModal from '@/components/VoteModal'
 
-export default function RacesPage() {
+export default function HypotheticalPage() {
   const [elections, setElections] = useState<Election[]>([])
   const [loading, setLoading] = useState(true)
   const [active, setActive] = useState<Election | null>(null)
 
   useEffect(() => {
-    fetch('/api/elections')
+    fetch('/api/hypothetical')
       .then((r) => r.json())
       .then((d) => { setElections(d.elections ?? []); setLoading(false) })
       .catch(() => setLoading(false))
@@ -20,20 +20,20 @@ export default function RacesPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Active Races</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Vote anonymously — select a candidate to reveal results.</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Hypothetical Matchups</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Who <em>would</em> you vote for? These races aren&apos;t on the ballot — yet.</p>
       </div>
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1,2,3].map((i) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[1,2].map((i) => (
             <div key={i} className="h-32 rounded-xl bg-gray-200 dark:bg-gray-800 animate-pulse" />
           ))}
         </div>
       ) : elections.length === 0 ? (
-        <p className="text-gray-400 text-sm">No active races right now. Check back soon.</p>
+        <p className="text-gray-400 text-sm">No hypothetical matchups yet.</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           {elections.map((e) => (
             <ElectionCard key={e.id} election={e} onClick={() => setActive(e)} />
           ))}
@@ -43,7 +43,7 @@ export default function RacesPage() {
       {active && (
         <VoteModal
           election={active}
-          apiBase="/api/elections"
+          apiBase="/api/hypothetical"
           onClose={() => setActive(null)}
         />
       )}

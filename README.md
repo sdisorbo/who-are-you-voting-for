@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🗳️ Who Are You Voting For?
 
-## Getting Started
+Anonymous, real-time US election polling. Vote on active races and hypothetical matchups — no login, no tracking, just your voice. Results appear instantly with a national bar chart and interactive state-by-state heatmap.
 
-First, run the development server:
+**Live:** [who-are-you-voting-for.vercel.app](https://who-are-you-voting-for.vercel.app) *(update after first deploy)*
+
+---
+
+## Tech Stack
+- **Framework:** Next.js 14 (App Router)
+- **Styling:** Tailwind CSS + `next-themes` (dark/light mode)
+- **Database:** Neon Postgres (`@neondatabase/serverless`)
+- **IP Geolocation:** `geoip-lite` (offline, no API key needed)
+- **Maps:** `react-simple-maps`
+- **Deployment:** Vercel
+
+---
+
+## Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/sdisorbo/who-are-you-voting-for.git
+cd who-are-you-voting-for
+npm install --legacy-peer-deps
+cp .env.example .env.local
+# Fill in DATABASE_URL and DATABASE_URL_UNPOOLED from your Neon dashboard
+npx ts-node --esm scripts/seed.ts   # seed the database once
+npm run dev                          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Setup (Neon)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a free account at [neon.tech](https://neon.tech)
+2. Create a new project → copy the **pooled** and **direct** connection strings
+3. Paste into `.env.local`:
+   ```
+   DATABASE_URL=postgres://...         # pooled
+   DATABASE_URL_UNPOOLED=postgres://... # direct
+   ```
+4. Run the seed script once to create tables and load initial data
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy to Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push this repo to GitHub
+2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import the repo
+3. Vercel auto-detects Next.js — no build config needed
+4. In **Project Settings → Environment Variables**, add:
+   - `DATABASE_URL` — Neon pooled connection string
+   - `DATABASE_URL_UNPOOLED` — Neon direct connection string
+   - `IP_SALT` — any random string (hardens IP hashing)
+5. Click **Deploy** — every push to `main` auto-deploys
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Privacy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- One vote per IP per election, enforced via a SHA-256 hash stored in the database
+- Raw IP addresses are **never** logged or stored
+- No cookies, no accounts, no tracking
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | ✅ | Neon pooled connection string |
+| `DATABASE_URL_UNPOOLED` | Seed only | Neon direct connection string |
+| `IP_SALT` | Optional | Random string to harden IP hashing |
