@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
 import { hashIp, getClientIp } from '@/lib/ipHash'
-import { getStateFromIp } from '@/lib/geolocate'
+import { getStateFromRequest } from '@/lib/geolocate'
 import { getResults } from '@/lib/results'
 
 export const dynamic = 'force-dynamic'
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     if (!candidate) return NextResponse.json({ error: 'Invalid candidate' }, { status: 400 })
 
     // Geolocate
-    const state = getStateFromIp(ip)
+    const state = getStateFromRequest(req)
 
     // Upsert vote count
     await sql`
