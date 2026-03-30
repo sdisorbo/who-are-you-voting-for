@@ -1,6 +1,4 @@
-export const metadata = {
-  title: 'About — The Ballot',
-}
+'use client'
 
 export default function AboutPage() {
   return (
