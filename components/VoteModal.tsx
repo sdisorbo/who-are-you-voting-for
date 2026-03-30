@@ -8,7 +8,7 @@ import USHeatmap from './USHeatmap'
 
 interface Props {
   election: Election
-  apiBase: string   // e.g. '/api/elections' or '/api/hypothetical'
+  apiBase: string
   onClose: () => void
 }
 
@@ -42,24 +42,133 @@ export default function VoteModal({ election, apiBase, onClose }: Props) {
     }
   }
 
+  const backdropStyle: React.CSSProperties = {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '16px',
+    background: 'rgba(0,0,0,0.75)',
+    backdropFilter: 'blur(6px)',
+    WebkitBackdropFilter: 'blur(6px)',
+  }
+
+  const modalStyle: React.CSSProperties = {
+    background: '#090f24',
+    border: '1px solid #1e2d52',
+    borderRadius: '16px',
+    width: '100%',
+    maxWidth: '640px',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+  }
+
+  const headerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '20px 24px',
+    borderBottom: '1px solid #1e2d52',
+  }
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '16px',
+    fontWeight: 700,
+    color: '#f0f4ff',
+    margin: 0,
+  }
+
+  const closeStyle: React.CSSProperties = {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: '#8899bb',
+    fontSize: '22px',
+    lineHeight: 1,
+    padding: '0 4px',
+  }
+
+  const bodyStyle: React.CSSProperties = {
+    padding: '24px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  }
+
+  const subtitleStyle: React.CSSProperties = {
+    fontSize: '13px',
+    color: '#8899bb',
+    textAlign: 'center',
+    margin: 0,
+  }
+
+  const candidateGridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: election.candidates.length === 2 ? '1fr 1fr' : '1fr',
+    gap: '12px',
+  }
+
+  const submitStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '14px',
+    borderRadius: '10px',
+    border: 'none',
+    cursor: selected && !submitting ? 'pointer' : 'not-allowed',
+    fontWeight: 700,
+    fontSize: '14px',
+    color: '#ffffff',
+    background: selected
+      ? 'linear-gradient(90deg, #2563eb 0%, #dc2626 100%)'
+      : '#1e2d52',
+    opacity: selected && !submitting ? 1 : 0.5,
+    transition: 'opacity 0.15s, background 0.15s',
+  }
+
+  const alreadyVotedStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 16px',
+    background: 'rgba(234,179,8,0.1)',
+    border: '1px solid rgba(234,179,8,0.3)',
+    borderRadius: '8px',
+    fontSize: '13px',
+    color: '#fbbf24',
+  }
+
+  const errorStyle: React.CSSProperties = {
+    color: '#f87171',
+    fontSize: '13px',
+    textAlign: 'center',
+  }
+
+  const heatmapLabelStyle: React.CSSProperties = {
+    fontSize: '13px',
+    fontWeight: 600,
+    color: '#8899bb',
+    marginBottom: '8px',
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div style={backdropStyle} onClick={onClose}>
+      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{election.title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none">&times;</button>
+        <div style={headerStyle}>
+          <h2 style={titleStyle}>{election.title}</h2>
+          <button style={closeStyle} onClick={onClose}>&times;</button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div style={bodyStyle}>
           {!results ? (
             <>
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Select a candidate to see the results</p>
+              <p style={subtitleStyle}>Select a candidate to reveal the results</p>
 
-              <div className={`grid gap-4 ${election.candidates.length === 2 ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'}`}>
+              <div style={candidateGridStyle}>
                 {election.candidates.map((c) => (
                   <CandidateCard
                     key={c.id}
@@ -70,12 +179,12 @@ export default function VoteModal({ election, apiBase, onClose }: Props) {
                 ))}
               </div>
 
-              {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+              {error && <p style={errorStyle}>{error}</p>}
 
               <button
+                style={submitStyle}
                 onClick={handleSubmit}
                 disabled={!selected || submitting}
-                className="w-full py-3 rounded-xl font-semibold text-sm transition-all bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Submitting…' : 'Cast Vote & See Results'}
               </button>
@@ -83,16 +192,16 @@ export default function VoteModal({ election, apiBase, onClose }: Props) {
           ) : (
             <>
               {alreadyVoted && (
-                <div className="flex items-center gap-2 px-4 py-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-300">
+                <div style={alreadyVotedStyle}>
                   <span>⚠️</span>
-                  <span>You already voted in this election. Showing current results.</span>
+                  <span>You already voted — showing current results</span>
                 </div>
               )}
 
               <ResultsChart results={results} total_votes={totalVotes} />
 
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Results by State</p>
+                <p style={heatmapLabelStyle}>Results by State</p>
                 <USHeatmap results={results} />
               </div>
             </>

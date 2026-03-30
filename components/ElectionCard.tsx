@@ -1,17 +1,23 @@
 'use client'
 
+import { useState } from 'react'
 import type { Election } from '@/lib/types'
 
-const STATUS_BADGE: Record<string, string> = {
-  active:   'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-  upcoming: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
-  closed:   'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+const PARTY_COLOR: Record<string, string> = {
+  Democrat:    '#2563eb',
+  Republican:  '#dc2626',
+  Independent: '#7c3aed',
 }
 
-const PARTY_DOT: Record<string, string> = {
-  Democrat:    'bg-blue-500',
-  Republican:  'bg-red-500',
-  Independent: 'bg-purple-500',
+const PARTY_BG: Record<string, string> = {
+  Democrat:    'rgba(37,99,235,0.15)',
+  Republican:  'rgba(220,38,38,0.15)',
+  Independent: 'rgba(124,58,237,0.15)',
+}
+
+function getAccentColor(election: Election): string {
+  const firstParty = election.candidates[0]?.party
+  return PARTY_COLOR[firstParty] ?? '#1e2d52'
 }
 
 interface Props {
@@ -20,31 +26,133 @@ interface Props {
 }
 
 export default function ElectionCard({ election, onClick }: Props) {
+  const [hovered, setHovered] = useState(false)
+  const accent = getAccentColor(election)
+
+  const cardStyle: React.CSSProperties = {
+    width: '100%',
+    textAlign: 'left',
+    background: '#090f24',
+    border: `1px solid ${hovered ? accent : '#1e2d52'}`,
+    borderLeft: `4px solid ${accent}`,
+    borderRadius: '12px',
+    padding: '20px',
+    cursor: 'pointer',
+    transition: 'border-color 0.15s, transform 0.15s, box-shadow 0.15s',
+    transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+    boxShadow: hovered ? `0 8px 24px rgba(0,0,0,0.4)` : 'none',
+    display: 'block',
+  }
+
+  const statusInfo = (() => {
+    switch (election.status) {
+      case 'active':
+        return {
+          dot: '#22c55e',
+          label: 'LIVE',
+          color: '#22c55e',
+          bg: 'rgba(34,197,94,0.1)',
+        }
+      case 'upcoming':
+        return {
+          dot: '#eab308',
+          label: 'UPCOMING',
+          color: '#eab308',
+          bg: 'rgba(234,179,8,0.1)',
+        }
+      default:
+        return {
+          dot: '#6b7280',
+          label: 'CLOSED',
+          color: '#6b7280',
+          bg: 'rgba(107,114,128,0.1)',
+        }
+    }
+  })()
+
   return (
     <button
+      style={cardStyle}
       onClick={onClick}
-      className="w-full text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all duration-150 group"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-sm leading-snug">
-          {election.title}
-        </h3>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_BADGE[election.status]}`}>
-          {election.status.charAt(0).toUpperCase() + election.status.slice(1)}
+      {/* Status badge */}
+      <div style={{ marginBottom: '10px' }}>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: statusInfo.color,
+            background: statusInfo.bg,
+            padding: '3px 8px',
+            borderRadius: '4px',
+          }}
+        >
+          <span
+            style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: statusInfo.dot,
+              display: 'inline-block',
+            }}
+          />
+          {statusInfo.label}
         </span>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {election.candidates.map((c) => (
-          <span key={c.id} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <span className={`w-2 h-2 rounded-full ${PARTY_DOT[c.party] ?? 'bg-gray-400'}`} />
-            {c.name}
-          </span>
-        ))}
+      {/* Title */}
+      <h3
+        style={{
+          fontSize: '15px',
+          fontWeight: 700,
+          color: '#f0f4ff',
+          marginBottom: '12px',
+          lineHeight: 1.3,
+        }}
+      >
+        {election.title}
+      </h3>
+
+      {/* Candidates */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
+        {election.candidates.map((c) => {
+          const pColor = PARTY_COLOR[c.party] ?? '#8899bb'
+          const pBg = PARTY_BG[c.party] ?? 'rgba(136,153,187,0.15)'
+          return (
+            <span
+              key={c.id}
+              style={{
+                fontSize: '12px',
+                fontWeight: 500,
+                color: pColor,
+                background: pBg,
+                padding: '3px 8px',
+                borderRadius: '20px',
+                border: `1px solid ${pColor}33`,
+              }}
+            >
+              {c.name}
+            </span>
+          )
+        })}
       </div>
 
-      <p className="mt-3 text-xs text-blue-600 dark:text-blue-400 font-medium group-hover:underline">
-        Vote &amp; see results →
+      {/* CTA */}
+      <p
+        style={{
+          fontSize: '12px',
+          color: '#8899bb',
+          fontWeight: 500,
+        }}
+      >
+        Vote &amp; See Results →
       </p>
     </button>
   )

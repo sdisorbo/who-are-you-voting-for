@@ -18,17 +18,24 @@ const FIPS_TO_STATE: Record<string, string> = {
 }
 
 const PARTY_COLOR: Record<string, string> = {
-  Democrat:    '#1a6fc4',
-  Republican:  '#c0392b',
-  Independent: '#6c3483',
+  Democrat:    '#1a4fa0',
+  Republican:  '#9b1c1c',
+  Independent: '#4c1d95',
 }
+
+const LEGEND_ENTRIES = [
+  { party: 'Democrat',    color: '#1a4fa0' },
+  { party: 'Republican',  color: '#9b1c1c' },
+  { party: 'Independent', color: '#4c1d95' },
+  { party: 'No data',     color: '#1e2d52' },
+]
 
 interface Props {
   results: VoteResult[]
 }
 
 export default function USHeatmap({ results }: Props) {
-  const [tooltip, setTooltip] = useState<{ state: string; content: string; x: number; y: number } | null>(null)
+  const [tooltip, setTooltip] = useState<{ content: string; x: number; y: number } | null>(null)
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
@@ -52,13 +59,26 @@ export default function USHeatmap({ results }: Props) {
     stateData[state] = { winner, party, breakdown }
   })
 
-  if (!mounted) return (
-    <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-  )
+  if (!mounted) {
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '240px',
+          background: '#0d1530',
+          borderRadius: '12px',
+          animation: 'pulse 1.5s ease-in-out infinite',
+        }}
+      />
+    )
+  }
 
   return (
-    <div className="relative w-full">
-      <ComposableMap projection="geoAlbersUsa" className="w-full h-auto">
+    <div style={{ position: 'relative', width: '100%' }}>
+      <ComposableMap
+        projection="geoAlbersUsa"
+        style={{ width: '100%', height: 'auto', background: 'transparent' }}
+      >
         <ZoomableGroup zoom={1}>
           <Geographies geography={GEO_URL}>
             {({ geographies }) =>
@@ -66,7 +86,7 @@ export default function USHeatmap({ results }: Props) {
                 const fips = geo.id?.toString().padStart(2, '0') ?? ''
                 const stateCode = FIPS_TO_STATE[fips]
                 const data = stateCode ? stateData[stateCode] : undefined
-                const fill = data ? (PARTY_COLOR[data.party] ?? '#9ca3af') : '#d1d5db'
+                const fill = data ? (PARTY_COLOR[data.party] ?? '#2e4070') : '#1e2d52'
 
                 return (
                   <Geography
@@ -76,7 +96,7 @@ export default function USHeatmap({ results }: Props) {
                     stroke="#ffffff"
                     strokeWidth={0.5}
                     style={{
-                      default: { opacity: data ? 0.85 : 0.4, outline: 'none' },
+                      default: { opacity: data ? 0.9 : 0.6, outline: 'none' },
                       hover:   { opacity: 1, outline: 'none', cursor: 'pointer' },
                       pressed: { outline: 'none' },
                     }}
@@ -85,7 +105,7 @@ export default function USHeatmap({ results }: Props) {
                       const content = data
                         ? `${stateCode}: ${data.breakdown}`
                         : `${stateCode}: No votes yet`
-                      setTooltip({ state: stateCode, content, x: e.clientX, y: e.clientY })
+                      setTooltip({ content, x: e.clientX, y: e.clientY })
                     }}
                     onMouseMove={(e: React.MouseEvent) => {
                       setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : prev)
@@ -101,25 +121,59 @@ export default function USHeatmap({ results }: Props) {
 
       {tooltip && (
         <div
-          className="fixed z-50 pointer-events-none bg-gray-900 dark:bg-gray-700 text-white text-xs px-3 py-2 rounded-lg shadow-lg max-w-xs"
-          style={{ left: tooltip.x + 12, top: tooltip.y - 8 }}
+          style={{
+            position: 'fixed',
+            zIndex: 9999,
+            pointerEvents: 'none',
+            background: '#0d1530',
+            color: '#f0f4ff',
+            border: '1px solid #1e2d52',
+            fontSize: '12px',
+            padding: '6px 10px',
+            borderRadius: '6px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+            maxWidth: '260px',
+            left: tooltip.x + 12,
+            top: tooltip.y - 8,
+          }}
         >
           {tooltip.content}
         </div>
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-2 justify-center text-xs text-gray-500 dark:text-gray-400">
-        {Object.entries(PARTY_COLOR).map(([party, color]) => (
-          <span key={party} className="flex items-center gap-1">
-            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: color }} />
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginTop: '10px',
+          justifyContent: 'center',
+        }}
+      >
+        {LEGEND_ENTRIES.map(({ party, color }) => (
+          <span
+            key={party}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontSize: '12px',
+              color: '#8899bb',
+            }}
+          >
+            <span
+              style={{
+                width: '12px',
+                height: '12px',
+                borderRadius: '2px',
+                background: color,
+                display: 'inline-block',
+              }}
+            />
             {party}
           </span>
         ))}
-        <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm inline-block bg-gray-300" />
-          No data
-        </span>
       </div>
     </div>
   )

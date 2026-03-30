@@ -2,14 +2,60 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+
+const navStyle: React.CSSProperties = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 50,
+  background: 'rgba(5,9,26,0.92)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  borderBottom: '1px solid #1e2d52',
+}
+
+const innerStyle: React.CSSProperties = {
+  maxWidth: '1100px',
+  margin: '0 auto',
+  padding: '0 24px',
+  height: '56px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+}
+
+const logoStyle: React.CSSProperties = {
+  fontWeight: 700,
+  fontSize: '15px',
+  letterSpacing: '0.05em',
+  color: '#f0f4ff',
+  textDecoration: 'none',
+}
+
+const navLinksStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+}
+
+function navLinkStyle(active: boolean): React.CSSProperties {
+  return {
+    padding: '6px 12px',
+    borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: 500,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    textDecoration: 'none',
+    color: active ? '#f0f4ff' : '#8899bb',
+    background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
+    transition: 'color 0.15s, background 0.15s',
+  }
+}
 
 export default function Navbar() {
   const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
 
   const tabs = [
     { label: 'Races',        href: '/' },
@@ -18,36 +64,22 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur border-b border-gray-200 dark:border-gray-800">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg tracking-tight text-gray-900 dark:text-white">
-          🗳️ Who Are You Voting For?
+    <nav style={navStyle}>
+      <div style={innerStyle}>
+        <Link href="/" style={logoStyle}>
+          ★ THE BALLOT
         </Link>
 
-        <div className="flex items-center gap-1">
+        <div style={navLinksStyle}>
           {tabs.map((t) => (
             <Link
               key={t.href}
               href={t.href}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                pathname === t.href
-                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
+              style={navLinkStyle(pathname === t.href)}
             >
               {t.label}
             </Link>
           ))}
-
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="ml-3 p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
-          )}
         </div>
       </div>
     </nav>

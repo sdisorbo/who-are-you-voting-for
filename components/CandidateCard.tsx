@@ -3,22 +3,10 @@
 import { useState } from 'react'
 import type { Candidate } from '@/lib/types'
 
-const PARTY_COLORS: Record<string, string> = {
-  Democrat:    'border-blue-500 ring-blue-500',
-  Republican:  'border-red-500 ring-red-500',
-  Independent: 'border-purple-500 ring-purple-500',
-}
-
-const PARTY_BG: Record<string, string> = {
-  Democrat:    'bg-blue-50 dark:bg-blue-950',
-  Republican:  'bg-red-50 dark:bg-red-950',
-  Independent: 'bg-purple-50 dark:bg-purple-950',
-}
-
-const PARTY_TEXT: Record<string, string> = {
-  Democrat:    'text-blue-700 dark:text-blue-300',
-  Republican:  'text-red-700 dark:text-red-300',
-  Independent: 'text-purple-700 dark:text-purple-300',
+const PARTY_COLOR: Record<string, string> = {
+  Democrat:    '#2563eb',
+  Republican:  '#dc2626',
+  Independent: '#7c3aed',
 }
 
 interface Props {
@@ -30,46 +18,122 @@ interface Props {
 
 export default function CandidateCard({ candidate, selected, onSelect, disabled }: Props) {
   const [imgError, setImgError] = useState(false)
-  const fallback = candidate.party === 'Democrat' ? '/fallback/democrat.svg' : '/fallback/republican.svg'
+  const [hovered, setHovered] = useState(false)
+
+  const fallback =
+    candidate.party === 'Democrat'
+      ? '/fallback/democrat.svg'
+      : '/fallback/republican.svg'
   const imgSrc = imgError || !candidate.photo_url ? fallback : candidate.photo_url
 
-  const borderClass = PARTY_COLORS[candidate.party] ?? 'border-gray-400 ring-gray-400'
-  const bgClass     = PARTY_BG[candidate.party]     ?? 'bg-gray-50 dark:bg-gray-900'
-  const textClass   = PARTY_TEXT[candidate.party]   ?? 'text-gray-700 dark:text-gray-300'
+  const partyColor = PARTY_COLOR[candidate.party] ?? '#8899bb'
+
+  const cardStyle: React.CSSProperties = {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '20px 16px',
+    borderRadius: '12px',
+    border: selected
+      ? `2px solid ${partyColor}`
+      : `2px solid ${hovered ? '#2e4070' : '#1e2d52'}`,
+    background: selected
+      ? `rgba(${partyColor === '#2563eb' ? '37,99,235' : partyColor === '#dc2626' ? '220,38,38' : '124,58,237'},0.12)`
+      : '#0d1530',
+    cursor: disabled ? 'default' : 'pointer',
+    transition: 'border-color 0.15s, background 0.15s, transform 0.15s',
+    transform: selected ? 'scale(1.01)' : 'scale(1)',
+    width: '100%',
+    boxSizing: 'border-box',
+  }
+
+  const photoWrapStyle: React.CSSProperties = {
+    width: '96px',
+    height: '96px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    border: `2px solid ${selected ? partyColor : '#1e2d52'}`,
+    background: '#0d1530',
+    flexShrink: 0,
+  }
+
+  const imgStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  }
+
+  const nameStyle: React.CSSProperties = {
+    fontWeight: 700,
+    fontSize: '15px',
+    color: '#f0f4ff',
+    textAlign: 'center',
+    margin: 0,
+  }
+
+  const badgeStyle: React.CSSProperties = {
+    fontSize: '11px',
+    fontWeight: 600,
+    letterSpacing: '0.06em',
+    color: partyColor,
+    background: `${partyColor}22`,
+    border: `1px solid ${partyColor}44`,
+    padding: '2px 8px',
+    borderRadius: '20px',
+    display: 'inline-block',
+    marginTop: '4px',
+  }
+
+  const checkStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
+    width: '22px',
+    height: '22px',
+    borderRadius: '50%',
+    background: partyColor,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 
   return (
     <button
+      style={cardStyle}
       onClick={onSelect}
       disabled={disabled}
-      className={`
-        relative flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all duration-150 w-full
-        ${bgClass}
-        ${selected ? `${borderClass} ring-2 ring-offset-2 scale-[1.02] shadow-lg` : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}
-        ${disabled ? 'cursor-default' : 'cursor-pointer hover:shadow-md'}
-      `}
+      onMouseEnter={() => !disabled && setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {/* Photo */}
-      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+      <div style={photoWrapStyle}>
         <img
           src={imgSrc}
           alt={candidate.name}
-          className="w-full h-full object-cover"
+          style={imgStyle}
           onError={() => setImgError(true)}
         />
       </div>
 
-      {/* Name */}
-      <div className="text-center">
-        <p className="font-semibold text-gray-900 dark:text-white text-base">{candidate.name}</p>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full mt-1 inline-block ${textClass} ${bgClass} border ${borderClass.split(' ')[0]}`}>
-          {candidate.party}
-        </span>
+      <div style={{ textAlign: 'center' }}>
+        <p style={nameStyle}>{candidate.name}</p>
+        <span style={badgeStyle}>{candidate.party}</span>
       </div>
 
       {selected && (
-        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+        <div style={checkStyle}>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 20 20"
+            fill="white"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
           </svg>
         </div>
       )}

@@ -1,47 +1,144 @@
 export const metadata = {
-  title: 'About — Who Are You Voting For?',
+  title: 'About — The Ballot',
 }
 
 export default function AboutPage() {
   return (
-    <div className="max-w-xl">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">About</h1>
+    <div
+      style={{
+        maxWidth: '560px',
+        margin: '0 auto',
+        padding: '96px 24px 48px',
+      }}
+    >
+      <h1
+        style={{
+          fontSize: '32px',
+          fontWeight: 800,
+          color: '#f0f4ff',
+          margin: '0 0 28px',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        About
+      </h1>
 
-      <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
-        <p>
-          <strong className="text-gray-900 dark:text-white">Who Are You Voting For?</strong> is an anonymous,
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          marginBottom: '36px',
+        }}
+      >
+        <p style={{ fontSize: '15px', color: '#8899bb', lineHeight: 1.7, margin: 0 }}>
+          <strong style={{ color: '#f0f4ff' }}>Who Are You Voting For?</strong> is an anonymous,
           real-time US election polling site. No login. No tracking. Just your voice.
         </p>
-        <p>
+        <p style={{ fontSize: '15px', color: '#8899bb', lineHeight: 1.7, margin: 0 }}>
           Vote on active races and hypothetical matchups to instantly see how others are leaning —
           broken down nationally and by state on an interactive map.
         </p>
-        <p>
+        <p style={{ fontSize: '15px', color: '#8899bb', lineHeight: 1.7, margin: 0 }}>
           To prevent double voting, each IP address can cast one vote per election. Only a
-          cryptographic hash of your IP is stored — never the raw address — and it is never shared
-          or used for any other purpose.
+          SHA-256 cryptographic hash of your IP is stored — never the raw address — and it is
+          never shared or used for any other purpose.
         </p>
-        <p>
+        <p style={{ fontSize: '15px', color: '#8899bb', lineHeight: 1.7, margin: 0 }}>
           All data is aggregated. No individual votes are stored or attributable to any person.
         </p>
       </div>
 
-      <div className="border-t border-gray-200 dark:border-gray-800 pt-6 space-y-4">
+      <div
+        style={{
+          borderTop: '1px solid #1e2d52',
+          paddingTop: '28px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+        }}
+      >
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-1">Business Inquiries &amp; Questions</p>
-          <a href="mailto:sfdisorbo@gmail.com" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <p
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: '#8899bb',
+              margin: '0 0 6px',
+            }}
+          >
+            Business Inquiries &amp; Questions
+          </p>
+          <a
+            href="mailto:sfdisorbo@gmail.com"
+            style={{
+              fontSize: '14px',
+              color: '#3b82f6',
+              textDecoration: 'none',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+            onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+          >
             sfdisorbo@gmail.com
           </a>
         </div>
+
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-1">LinkedIn</p>
-          <a href="https://www.linkedin.com/in/sam-disorbo-b51056220/" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <p
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: '#8899bb',
+              margin: '0 0 6px',
+            }}
+          >
+            LinkedIn
+          </p>
+          <a
+            href="https://www.linkedin.com/in/sam-disorbo-b51056220/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: '14px',
+              color: '#3b82f6',
+              textDecoration: 'none',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+            onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+          >
             linkedin.com/in/sam-disorbo-b51056220
           </a>
         </div>
+
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-1">GitHub</p>
-          <a href="https://github.com/sdisorbo" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <p
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: '#8899bb',
+              margin: '0 0 6px',
+            }}
+          >
+            GitHub
+          </p>
+          <a
+            href="https://github.com/sdisorbo"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: '14px',
+              color: '#3b82f6',
+              textDecoration: 'none',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+            onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+          >
             github.com/sdisorbo
           </a>
         </div>
